@@ -14,6 +14,7 @@ export default function Page() {
   const [activeSection, setActiveSection] = useState('hero');
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const [isHovering, setIsHovering] = useState(false);
+  const [targetFocus, setTargetFocus] = useState<'system' | 'earth' | 'saturn' | 'rocket' | 'astronaut'>('system');
 
   // Custom Cursor Logic
   useEffect(() => {
@@ -37,20 +38,27 @@ export default function Page() {
     return () => window.removeEventListener('mousemove', updateCursorPos);
   }, []);
 
-  // Loading Screen Timer Simulation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLoadingProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setIsLoaded(true), 400);
-          return 100;
-        }
-        return prev + Math.floor(Math.random() * 15) + 5;
-      });
-    }, 120);
+  // WebGL Asset Preloading & Progress Synchronization with Safety Fallback
+  const handleSceneProgress = (progress: number) => {
+    const percent = Math.min(100, Math.round(progress * 100));
+    setLoadingProgress((prev) => Math.max(prev, percent));
+  };
 
-    return () => clearInterval(interval);
+  const handleSceneLoaded = () => {
+    setLoadingProgress(100);
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 180);
+  };
+
+  // Safety fallback: ensure loading screen is dismissed even if WebGL is unavailable
+  useEffect(() => {
+    const safetyTimer = setTimeout(() => {
+      setLoadingProgress(100);
+      setIsLoaded(true);
+    }, 2400);
+
+    return () => clearTimeout(safetyTimer);
   }, []);
 
   // Track active section on scroll
@@ -89,8 +97,8 @@ export default function Page() {
         {!isLoaded && (
           <motion.div
             key="loader"
-            exit={{ opacity: 0, scale: 1.02 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, scale: 1.01 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black p-6"
           >
             <div className="relative w-full max-w-sm flex flex-col items-center text-center">
@@ -132,7 +140,11 @@ export default function Page() {
       {/* ----------------------------------------------------
           03. 3D WEBGL HERO CANVAS BACKGROUND
       ---------------------------------------------------- */}
-      <HeroAnimation />
+      <HeroAnimation 
+        onSceneLoaded={handleSceneLoaded} 
+        onSceneProgress={handleSceneProgress}
+        targetFocus={targetFocus} 
+      />
 
       {/* ----------------------------------------------------
           04. MAIN HERO LANDING VIEW
@@ -142,45 +154,58 @@ export default function Page() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-5xl mx-auto flex flex-col items-center w-full"
+          className="max-w-5xl mx-auto flex flex-col items-center w-full relative z-10"
         >
-          {/* Subtitle Label */}
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 text-white/60 text-[9px] font-mono tracking-[0.2em] uppercase mb-8 backdrop-blur-md">
-            <span>Jadavpur University Entrepreneurship Cell</span>
+          {/* Subtitle Telemetry Badge */}
+          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-white/15 bg-black/40 backdrop-blur-xl text-white/70 text-[10px] font-mono tracking-[0.25em] uppercase mb-8 shadow-[0_0_25px_-5px_rgba(0,255,255,0.15)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#00ffff]" />
+            <span>JADAVPUR UNIVERSITY ENTREPRENEURSHIP CELL</span>
+            <span className="text-white/30 hidden sm:inline">|</span>
+            <span className="text-cyan-300/80 hidden sm:inline">EDITION VI</span>
           </div>
 
-          {/* Enormous Editorial Display Title */}
-          <h1 className="font-display text-5xl sm:text-8xl lg:text-[10rem] font-medium tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
+          {/* Enormous Editorial Display Title (iOS / Awwwards Typography) */}
+          <h1 className="font-display text-6xl sm:text-8xl lg:text-[11rem] font-medium tracking-[-0.055em] text-transparent bg-clip-text bg-gradient-to-b from-white via-white/95 to-white/45 leading-[0.88] drop-shadow-[0_12px_60px_rgba(255,255,255,0.2)] select-none">
             E-SUMMIT
           </h1>
-          <div className="font-display text-5xl sm:text-8xl lg:text-[10rem] font-medium text-white/40 tracking-tighter leading-[0.9] -mt-1 sm:-mt-2">
+          <div className="font-display text-6xl sm:text-8xl lg:text-[11rem] font-light tracking-[-0.06em] text-transparent bg-clip-text bg-gradient-to-b from-white/95 via-sky-100/80 to-white/20 leading-[0.88] -mt-2 sm:-mt-5 select-none drop-shadow-[0_0_50px_rgba(76,165,255,0.35)]">
             2026
           </div>
 
-          {/* Calligraphic Accent Line */}
+          {/* Calligraphic Accent Line (iOS Awwwards Haute-Couture Style) */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.5, delay: 0.8 }}
-            className="font-calligraphy text-white/90 text-2xl sm:text-4xl lg:text-5xl mt-8 mb-10 italic tracking-tight font-light"
+            className="font-calligraphy italic text-3xl sm:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-white to-purple-200 mt-6 mb-7 tracking-[-0.015em] font-light drop-shadow-[0_4px_30px_rgba(255,255,255,0.4)]"
           >
             Where ideas leave Earth.
           </motion.div>
 
-          <p className="max-w-xl text-sm sm:text-base text-white/40 font-sans leading-relaxed font-light mb-12">
-            The Sixth Edition of our flagship event for innovators, founders, and aspiring entrepreneurs. Join the premier startup summit.
+          <p className="max-w-xl text-sm sm:text-base text-white/60 font-sans leading-relaxed font-light mb-10">
+            Eastern India&apos;s apex student-led entrepreneurship symposium. Connecting stellar minds, disruptive founders, and venture pioneers under one cosmic canvas.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
             <button
               onClick={() => {
                 soundEngine.playSwoosh();
                 setLoginOpen(true);
               }}
-              className="px-10 py-5 rounded-full font-mono text-[11px] font-bold tracking-[0.2em] text-black bg-white hover:scale-105 transition-transform duration-500 flex items-center gap-3 group"
+              className="px-10 py-4.5 rounded-full font-mono text-[11px] font-bold tracking-[0.2em] text-black bg-white hover:bg-cyan-100 hover:scale-105 transition-all duration-500 flex items-center gap-3 shadow-[0_0_40px_rgba(255,255,255,0.35)] group"
             >
-              <span>DELEGATE PORTAL</span>
+              <span>DELEGATE REGISTRATION</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            <button
+              onClick={() => {
+                soundEngine.playClick();
+                document.getElementById('about-ju')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-8 py-4.5 rounded-full font-mono text-[11px] font-semibold tracking-[0.2em] text-white/80 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/15 hover:border-white/30 backdrop-blur-xl transition-all duration-300"
+            >
+              EXPLORE ODYSSEY
             </button>
           </div>
         </motion.div>

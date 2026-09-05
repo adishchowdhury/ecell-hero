@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, User, Menu, X, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { soundEngine } from './sound-effects';
 
 interface NavigationProps {
@@ -12,8 +12,6 @@ export const Navigation: React.FC<NavigationProps> = ({
   activeSection
 }) => {
   const [scrolled, setScrolled] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,14 +25,8 @@ export const Navigation: React.FC<NavigationProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleSound = () => {
-    const muted = soundEngine.toggleMute();
-    setIsMuted(muted);
-  };
-
   const scrollToSection = (id: string) => {
     soundEngine.playClick();
-    setMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -46,8 +38,8 @@ export const Navigation: React.FC<NavigationProps> = ({
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
           scrolled
-            ? 'bg-black/40 backdrop-blur-2xl border-b border-white/5 py-4'
-            : 'bg-gradient-to-b from-black/80 to-transparent py-6'
+            ? 'bg-[#030611]/70 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)] py-3.5'
+            : 'bg-gradient-to-b from-[#030611]/90 via-[#030611]/40 to-transparent py-5'
         }`}
       >
         <div className="max-w-[90rem] mx-auto px-6 sm:px-12 flex items-center justify-between">
@@ -56,36 +48,37 @@ export const Navigation: React.FC<NavigationProps> = ({
             onClick={() => scrollToSection('hero')}
             className="flex flex-col gap-0.5 cursor-pointer group"
           >
-            <div className="flex items-center gap-2">
-              <span className="font-display font-semibold text-lg tracking-tight text-white group-hover:opacity-70 transition-opacity">
+            <div className="flex items-center gap-2.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00ffff] animate-pulse" />
+              <span className="font-display font-semibold text-lg tracking-tight text-white group-hover:text-cyan-200 transition-colors">
                 E-SUMMIT 2026
               </span>
             </div>
-            <span className="text-[9px] font-mono tracking-[0.2em] text-white/40 uppercase">
+            <span className="text-[9px] font-mono tracking-[0.25em] text-white/50 uppercase pl-4">
               Jadavpur University
             </span>
           </div>
 
+          {/* Center Orbital Telemetry Indicator (Desktop) */}
+          <div className="hidden md:flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
+            <span className="w-1 h-1 rounded-full bg-emerald-400 animate-ping" />
+            <span className="text-[10px] font-mono tracking-widest text-white/60 uppercase">
+              ORBITAL TELEMETRY // JU-KOLKATA
+            </span>
+            <span className="text-[10px] font-mono text-cyan-400/80">LAT 22.4989° N</span>
+          </div>
+
           {/* Action Buttons */}
           <div className="flex items-center gap-6">
-            {/* Audio Toggle */}
-            <button
-              onClick={toggleSound}
-              title={isMuted ? "Enable Audio" : "Mute Sound"}
-              className="hidden sm:flex p-2 text-white/50 hover:text-white transition-colors"
-            >
-              {!isMuted ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-            </button>
-
             {/* Login Button */}
             <button
               onClick={() => {
                 soundEngine.playClick();
                 onOpenLogin();
               }}
-              className="relative group overflow-hidden px-5 py-2.5 rounded-full border border-white/20 hover:border-white text-[11px] font-mono tracking-widest text-white transition-all duration-500 flex items-center gap-2"
+              className="relative group overflow-hidden px-6 py-2.5 rounded-full bg-white/[0.06] hover:bg-white text-white hover:text-black border border-white/20 hover:border-white text-[11px] font-mono tracking-widest transition-all duration-500 flex items-center gap-2.5 shadow-[0_0_20px_-5px_rgba(0,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]"
             >
-              <span>PORTAL ACCESS</span>
+              <span className="font-semibold">PORTAL ACCESS</span>
               <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>

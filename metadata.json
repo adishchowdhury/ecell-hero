@@ -1,0 +1,6 @@
+{
+  "name": "E-Summit 2026 - JU E-Cell",
+  "description": "The flagship edition of Jadavpur University Entrepreneurship Cell's E-Summit 2026 featuring immersive 3D solar system experience, startup competitions, keynotes, and pitch events.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
